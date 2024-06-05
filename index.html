@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Residents over 55 per Dissemination Area</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v9.2.4/ol.css">
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+    <h1>Residents over 55 per Dissemination Area</h1>
+    <div id="map" class="map"></div>
+    <input type="range" id="yearSlider" min="2016" max="2021" step="1" value="2021" oninput="updateYear(this.value)">
+    <label for="yearSlider">Year: <span id="yearLabel">2021</span></label>
+    <script src="https://cdn.jsdelivr.net/npm/ol@v9.2.4/dist/ol.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
