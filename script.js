@@ -7,7 +7,8 @@ const map = new ol.Map({
     layers: [
         new ol.layer.Tile({
             source: new ol.source.OSM(),
-            projection: projection // Set the projection for OSM
+            projection: projection, // Set the projection for OSM
+            
         }),
         /* new ol.layer.Tile({
             source: new ol.source.TileWMS({
@@ -42,6 +43,36 @@ const map = new ol.Map({
         zoom: 10
     })
 });
+
+const grayOsmLayer = new ol.layer.Tile({
+    source: new ol.source.OSM(),
+    projection: projection // Set the projection for OSM
+});
+
+grayOsmLayer.on('postrender', function(event) {
+    const context = event.context;
+    const canvas = context.canvas;
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Use getContext with willReadFrequently attribute
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+
+    // Apply greyscale filter
+    const imageData = context.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        const grayscale = data[i] * 0.3 + data[i + 1] * 0.59 + data[i + 2] * 0.11;
+        data[i] = grayscale;     // Red
+        data[i + 1] = grayscale; // Green
+        data[i + 2] = grayscale; // Blue
+    }
+    context.putImageData(imageData, 0, 0);
+});
+
+map.addLayer(grayOsmLayer);
+
 
 const vectorSource = new ol.source.Vector();
 
@@ -135,7 +166,7 @@ function convertToGeoJSON(observations) {
     };
 }
 
-
+// Fetch GeoJSON data from GitHub
 // Fetch GeoJSON data from GitHub
 async function addGeoJSONLayer() {
     const url = 'https://raw.githubusercontent.com/kkmcgg/statscan/main/data/NSCD.geojson';
@@ -156,17 +187,37 @@ async function addGeoJSONLayer() {
             })
         });
 
+        // Function to map LANDAREA to a color
+        function getColor_levels(landarea) {
+            if (landarea < 1) {
+                return 'rgba(255, 0, 0, 0.6)'; // Red for small land area
+            } else if (landarea < 2) {
+                return 'rgba(255, 0, 0, 0.4)'; // Green for medium land area
+            } else {
+                return 'rgba(255, 0, 0, 0.2)'; // Blue for large land area
+            }
+        }
+
+        function getColor(landarea) {
+            const opacity = Math.max(0, Math.min(1, .5 - landarea / 1)); // Adjust opacity based on landarea
+            return `rgba(255, 0, 0, ${opacity})`; // Red color with dynamic opacity
+        }
+
         const geojsonLayer = new ol.layer.Vector({
             source: geojsonSource,
-            style: new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: 'rgba(0, 0, 0, 0.1)' // Customize the fill color
-                }),
-                stroke: new ol.style.Stroke({
-                    color: '#000000',
-                    width: 1
-                })
-            })
+            style: function(feature) {
+                const landarea = feature.get('LANDAREA');
+                const color = getColor(landarea);
+                return new ol.style.Style({
+                    fill: new ol.style.Fill({
+                        color: color // Apply the color based on LANDAREA
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#000000',
+                        width: .2
+                    })
+                });
+            }
         });
 
         map.addLayer(geojsonLayer);
@@ -189,6 +240,7 @@ async function addGeoJSONLayer() {
 
 // Add the GeoJSON layer
 addGeoJSONLayer();
+
 
 
 // Initial fetch for the default year
