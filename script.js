@@ -23,19 +23,19 @@ const map = new ol.Map({
                 serverType: 'geoserver'
             })
         }) */
-        new ol.layer.Tile({
-            source: new ol.source.TileArcGISRest({
-                url: 'https://geo.statcan.gc.ca/geo_wa/rest/services/2021/Cartographic_boundary_files/MapServer',
-                params: {
-                    'LAYERS': '12' // The specific layer for dissemination areas
-                },
-                tileLoadFunction: function(imageTile, src) {
-                    imageTile.getImage().src = src;
-                },
-                transition: 0 // Disable transition for faster loading
-            }),
-            opacity: 0.6
-        })
+        // new ol.layer.Tile({
+        //     source: new ol.source.TileArcGISRest({
+        //         url: 'https://geo.statcan.gc.ca/geo_wa/rest/services/2021/Cartographic_boundary_files/MapServer',
+        //         params: {
+        //             'LAYERS': '12' // The specific layer for dissemination areas
+        //         },
+        //         tileLoadFunction: function(imageTile, src) {
+        //             imageTile.getImage().src = src;
+        //         },
+        //         transition: 0 // Disable transition for faster loading
+        //     }),
+        //     opacity: 0.6
+        // })
     ],
     view: new ol.View({
         center: ol.proj.fromLonLat([-63.5752, 44.6488]), // Adjust the center 
